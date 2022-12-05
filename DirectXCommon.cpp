@@ -1,4 +1,4 @@
-#include "DIrectXCommon.h"
+#include "DirectXCommon.h"
 #include <cassert>
 #include <vector>
 #include <thread>
