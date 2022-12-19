@@ -14,6 +14,9 @@ void Sprite::Initialize(SpriteCommon* _spriteCommon)
 	{ -0.5f, -0.5f, 0.0f }, // 左下
 	{ -0.5f, +0.5f, 0.0f }, // 左上
 	{ +0.5f, -0.5f, 0.0f }, // 右下
+	//{ +0.5f, -0.5f, 0.0f }, // 右下
+	//{ -0.5f, +0.5f, 0.0f }, // 左上
+	{ +0.5f, +0.5f, 0.0f }, // 右上
 	};
 	// 頂点データ全体のサイズ = 頂点データ一つ分のサイズ * 頂点データの要素数
 	UINT sizeVB = static_cast<UINT>(sizeof(XMFLOAT3) * _countof(vertices));
@@ -63,5 +66,5 @@ void Sprite::Draw()
 
 	spriteCommon->GetDirectXCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vbView);
 
-	spriteCommon->GetDirectXCommon()->GetCommandList()->DrawInstanced(3, 1, 0, 0);
+	spriteCommon->GetDirectXCommon()->GetCommandList()->DrawInstanced(4, 1, 0, 0);
 }

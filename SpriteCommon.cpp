@@ -188,7 +188,7 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 
 void SpriteCommon::PreDraw()
 {
-	dxCommon->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	dxCommon->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	dxCommon->GetCommandList()->SetPipelineState(pipelineState.Get());
 	dxCommon->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
