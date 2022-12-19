@@ -5,6 +5,13 @@
 
 #include "DIrectXCommon.h"
 
+using namespace DirectX;
+
+struct ConstBufferDataMaterial
+{
+	XMFLOAT4 color;
+};
+
 class SpriteCommon
 {
 public:
@@ -16,6 +23,8 @@ public:
 
 private:
 	DirectXCommon* dxCommon = nullptr;
+
+	ID3D12Resource* constBuffMaterial = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState>pipelineState;
 

@@ -123,9 +123,19 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 	pipelineDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // 0~255指定のRGBA
 	pipelineDesc.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
 
+	//ルートパラメータの設定
+	D3D12_ROOT_PARAMETER rootParam{};
+	rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//定数バッファビュー
+	rootParam.Descriptor.ShaderRegister = 0;//定数バッファ番号
+	rootParam.Descriptor.RegisterSpace = 0;//デフォルト値
+	rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;//全てのシェーダーから見える
+
 	// ルートシグネチャの設定
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
 	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	rootSignatureDesc.pParameters = &rootParam;//ルートパラメータの先頭アドレス
+	rootSignatureDesc.NumParameters = 1;//ルートパラメータ数
+
 	//ルートシグネチャのシリアライズ
 	ComPtr<ID3DBlob> rootSigBlob;
 	result = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0,
@@ -142,6 +152,37 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 	// パイプランステートの生成
 	result = dxCommon->GetDevice()->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&pipelineState));
 	assert(SUCCEEDED(result));
+
+	//ヒープ設定
+	D3D12_HEAP_PROPERTIES cbHeapProp{};
+	cbHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;//GUPへの転送用
+	//リソース設定
+	D3D12_RESOURCE_DESC cbResourceDesc{};
+	cbResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	cbResourceDesc.Width = (sizeof(ConstBufferDataMaterial) + 0xff) & ~0xff;//256バイトアラインメント
+	cbResourceDesc.Height = 1;
+	cbResourceDesc.DepthOrArraySize = 1;
+	cbResourceDesc.MipLevels = 1;
+	cbResourceDesc.SampleDesc.Count = 1;
+	cbResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	//定数バッファの作成
+	result = dxCommon->GetDevice()->CreateCommittedResource(
+		&cbHeapProp,//ヒープ設定
+		D3D12_HEAP_FLAG_NONE,
+		&cbResourceDesc,//リソース設定
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&constBuffMaterial));
+	assert(SUCCEEDED(result));
+
+	//定数バッファのマッピング
+	ConstBufferDataMaterial* constMapMaterial = nullptr;
+	result = constBuffMaterial->Map(0, nullptr, (void**)&constMapMaterial);//マッピング
+	assert(SUCCEEDED(result));
+
+	//値を書き込むと自動的に転送される
+	constMapMaterial->color = XMFLOAT4(1, 0, 0, 0.5f);
 }
 
 
@@ -151,4 +192,6 @@ void SpriteCommon::PreDraw()
 
 	dxCommon->GetCommandList()->SetPipelineState(pipelineState.Get());
 	dxCommon->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
+
+	dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(0, constBuffMaterial->GetGPUVirtualAddress());
 }
