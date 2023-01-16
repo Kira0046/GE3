@@ -3,6 +3,12 @@
 #include "SpriteCommon.h"
 
 
+struct Vertex
+{
+	XMFLOAT3 pos;
+	XMFLOAT2 uv;
+};
+
 class Sprite
 {
 public:
@@ -15,5 +21,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff;
 
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
+
+	
 };
 

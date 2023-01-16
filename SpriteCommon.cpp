@@ -69,11 +69,16 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 
 	// 頂点レイアウト
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
-	{
-	"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
-	D3D12_APPEND_ALIGNED_ELEMENT,
-	D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-	}, // (1行で書いたほうが見やすい)
+		{
+			"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		}, // (1行で書いたほうが見やすい)
+		{
+			"TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0
+		},
 	};
 
 	// グラフィックスパイプライン設定
@@ -181,8 +186,8 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 	result = constBuffMaterial->Map(0, nullptr, (void**)&constMapMaterial);//マッピング
 	assert(SUCCEEDED(result));
 
-	//値を書き込むと自動的に転送される
-	constMapMaterial->color = XMFLOAT4(1, 0, 0, 0.5f);
+	//値を書き込むと自動的に転送される    ps.ここで色が変わる
+	constMapMaterial->color = XMFLOAT4(1, 1, 1, 1.0f);
 }
 
 
