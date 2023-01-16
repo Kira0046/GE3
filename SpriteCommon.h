@@ -26,8 +26,16 @@ private:
 
 	ID3D12Resource* constBuffMaterial = nullptr;
 
+	ID3D12DescriptorHeap* srvHeap = nullptr;
+
 	Microsoft::WRL::ComPtr<ID3D12PipelineState>pipelineState;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature>rootSignature;
+
+	const size_t textureWidth = 256;
+
+	const size_t textureHeight = 256;
+
+	const size_t kMaxSRVCount = 2056;
 };
 
