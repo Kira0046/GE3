@@ -15,9 +15,9 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 	dxCommon = _dxCommon;
 
 	//シェーダー
-	ComPtr<ID3DBlob> vsBlob;
-	ComPtr<ID3DBlob> psBlob;
-	ComPtr<ID3DBlob> errorBlob;
+	ID3DBlob* vsBlob = nullptr;
+	ID3D10Blob* psBlob = nullptr;
+	ID3D10Blob* errorBlob=nullptr;
 
 	//VS読み込み
 	result = D3DCompileFromFile(
@@ -137,7 +137,7 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 	rootSignatureDesc.NumParameters = 1;//ルートパラメータ数
 
 	//ルートシグネチャのシリアライズ
-	ComPtr<ID3DBlob> rootSigBlob;
+	ID3D10Blob* rootSigBlob=nullptr;
 	result = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0,
 		&rootSigBlob, &errorBlob);	assert(SUCCEEDED(result));
 	assert(SUCCEEDED(result));
