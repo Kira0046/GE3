@@ -2,8 +2,10 @@
 #include <DirectXMath.h>
 #include <d3d12.h>
 #include <wrl.h>
+#include <DirectXTex.h>
 
 #include "DIrectXCommon.h"
+
 
 using namespace DirectX;
 
@@ -11,6 +13,7 @@ struct ConstBufferDataMaterial
 {
 	XMFLOAT4 color;
 };
+
 
 class SpriteCommon
 {
@@ -23,6 +26,7 @@ public:
 
 private:
 	DirectXCommon* dxCommon = nullptr;
+
 
 	ID3D12Resource* constBuffMaterial = nullptr;
 

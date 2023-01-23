@@ -15,6 +15,8 @@ public:
 	void Initialize(SpriteCommon* _spriteCommon);
 
 	void Draw();
+
+	D3D12_RESOURCE_DESC* GetResDesc() { resDesc; }
 private:
 	SpriteCommon* spriteCommon = nullptr;
 
@@ -22,5 +24,6 @@ private:
 
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
 
+	D3D12_RESOURCE_DESC resDesc;
 };
 

@@ -33,7 +33,6 @@ void Sprite::Initialize(SpriteCommon* _spriteCommon)
 	D3D12_HEAP_PROPERTIES heapProp{}; // ヒープ設定
 	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD; // GPUへの転送用
 	// リソース設定
-	D3D12_RESOURCE_DESC resDesc{};
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resDesc.Width = sizeVB; // 頂点データ全体のサイズ
 	resDesc.Height = 1;
