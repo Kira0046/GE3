@@ -194,36 +194,7 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 	assert(SUCCEEDED(result));
 
 
-	//ヒープ設定
-	D3D12_HEAP_PROPERTIES cbHeapProp{};
-	cbHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;//GUPへの転送用
-	//リソース設定
-	D3D12_RESOURCE_DESC cbResourceDesc{};
-	cbResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	cbResourceDesc.Width = (sizeof(ConstBufferDataMaterial) + 0xff) & ~0xff;//256バイトアラインメント
-	cbResourceDesc.Height = 1;
-	cbResourceDesc.DepthOrArraySize = 1;
-	cbResourceDesc.MipLevels = 1;
-	cbResourceDesc.SampleDesc.Count = 1;
-	cbResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-	//定数バッファの作成
-	result = dxCommon->GetDevice()->CreateCommittedResource(
-		&cbHeapProp,//ヒープ設定
-		D3D12_HEAP_FLAG_NONE,
-		&cbResourceDesc,//リソース設定
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&constBuffMaterial));
-	assert(SUCCEEDED(result));
-
-	//定数バッファのマッピング
-	ConstBufferDataMaterial* constMapMaterial = nullptr;
-	result = constBuffMaterial->Map(0, nullptr, (void**)&constMapMaterial);//マッピング
-	assert(SUCCEEDED(result));
-
-	//値を書き込むと自動的に転送される    ps.ここで色が変わる
-	constMapMaterial->color = XMFLOAT4(1, 1, 1, 1.0f);
+	
 
 
 
@@ -238,138 +209,7 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 		imageData[i].z = 0.0f;
 		imageData[i].w = 1.0f;
 	}*/
-	TexMetadata metadata{};
-	ScratchImage scratchImg{};
-
-	result = LoadFromWICFile(
-		L"ReSourCes/texture.png",
-		WIC_FLAGS_NONE,
-		&metadata, scratchImg
-	);
-
-	ScratchImage mipChain{};
-	result = GenerateMipMaps(
-		scratchImg.GetImages(),
-		scratchImg.GetImageCount(),
-		scratchImg.GetMetadata(),
-		TEX_FILTER_DEFAULT, 0,
-		mipChain
-	);
-	if (SUCCEEDED(result)) {
-		scratchImg = std::move(mipChain);
-		metadata = scratchImg.GetMetadata();
-	}
-	metadata.format = MakeSRGB(metadata.format);
-
-
-	//ヒープ設定
-	D3D12_HEAP_PROPERTIES textureHeapProp{};
-	textureHeapProp.Type = D3D12_HEAP_TYPE_CUSTOM;
-	textureHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
-	textureHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
-	//リソース設定
-	D3D12_RESOURCE_DESC textureResourceDesc{};
-	textureResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	textureResourceDesc.Format = metadata.format;
-	textureResourceDesc.Width = metadata.width;
-	textureResourceDesc.Height = (UINT)metadata.height;
-	textureResourceDesc.DepthOrArraySize = (UINT16)metadata.arraySize;
-	textureResourceDesc.MipLevels = (UINT)metadata.mipLevels;
-	textureResourceDesc.SampleDesc.Count = 1;
-
-	//テクスチャバッファの生成
-	ID3D12Resource* texBuff = nullptr;
-	result = dxCommon->GetDevice()->CreateCommittedResource(
-		&textureHeapProp,
-		D3D12_HEAP_FLAG_NONE,
-		&textureResourceDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&texBuff)
-	);
-
-	//テクスチャバッファにデータ転送
-	//result = texBuff->WriteToSubresource(
-	//	0,
-	//	nullptr,
-	//	imageData,
-	//	sizeof(XMFLOAT4) * textureWidth,
-	//	sizeof(XMFLOAT4) * imageDataCount
-	//);
-
-	//delete[] imageData;
-
-	for (size_t i = 0; i < metadata.mipLevels; i++) {
-		const Image* img = scratchImg.GetImage(i, 0, 0);
-		result = texBuff->WriteToSubresource(
-			(UINT)i,
-			nullptr,
-			img->pixels,
-			(UINT)img->rowPitch,
-			(UINT)img->slicePitch
-		);
-		assert(SUCCEEDED(result));
-	}
-
-
-	//デスクリプタヒープの設定
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	srvHeapDesc.NumDescriptors = kMaxSRVCount;
-
-	//設定を元にSRV用デスクリプタヒープを生成
-	result = dxCommon->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&srvHeap));
-	assert(SUCCEEDED(result));
-
-	//SRVヒープの先頭ハンドルを取得
-	D3D12_CPU_DESCRIPTOR_HANDLE srvHandle = srvHeap->GetCPUDescriptorHandleForHeapStart();
-
-	//シェーダーリソースビュー設定
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = textureResourceDesc.Format;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = textureResourceDesc.MipLevels;
-
-	//ハンドルの指す位置にシェーダーリソースビュー作成
-	dxCommon->GetDevice()->CreateShaderResourceView(texBuff, &srvDesc, srvHandle);
-
-	//定数バッファの生成
-	ConstBufferDataTransform* constMapTransform = nullptr;
-	{
-		D3D12_HEAP_PROPERTIES cbHeapProp{};
-		cbHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
-
-		D3D12_RESOURCE_DESC cbResourceDesc{};
-		cbResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		cbResourceDesc.Width=(sizeof(ConstBufferDataTransform) + 0xff) & ~0xff;
-		cbResourceDesc.Height = 1;
-		cbResourceDesc.DepthOrArraySize = 1;
-		cbResourceDesc.MipLevels = 1;
-		cbResourceDesc.SampleDesc.Count = 1;
-		cbResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-		result = dxCommon->GetDevice()->CreateCommittedResource(
-			&cbHeapProp,
-			D3D12_HEAP_FLAG_NONE,
-			&cbResourceDesc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&constBuffTransform));
-		assert(SUCCEEDED(result));
-
-		//定数バッファのマッピング
-		result = constBuffTransform->Map(0, nullptr, (void**)&constMapTransform);
-		assert(SUCCEEDED(result));
-		constMapTransform->mat = XMMatrixIdentity();
-
-		constMapTransform->mat.r[0].m128_f32[0] = 2.0f/1280;
-		constMapTransform->mat.r[1].m128_f32[1] = -2.0f/720;
-		constMapTransform->mat.r[3].m128_f32[0] = -1.0f;
-		constMapTransform->mat.r[3].m128_f32[1] = 1.0f;
-	}
-
+	
 
 }
 
@@ -380,12 +220,4 @@ void SpriteCommon::PreDraw()
 
 	dxCommon->GetCommandList()->SetPipelineState(pipelineState.Get());
 	dxCommon->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
-
-	dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(0, constBuffMaterial->GetGPUVirtualAddress());
-
-	dxCommon->GetCommandList()->SetDescriptorHeaps(1, &srvHeap);
-	D3D12_GPU_DESCRIPTOR_HANDLE srvGpuHandle = srvHeap->GetGPUDescriptorHandleForHeapStart();
-
-	dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(1, srvGpuHandle);
-	dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(2, constBuffTransform->GetGPUVirtualAddress());
 }

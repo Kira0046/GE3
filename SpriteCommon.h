@@ -9,14 +9,9 @@
 
 using namespace DirectX;
 
-struct ConstBufferDataMaterial
-{
-	XMFLOAT4 color;
-};
 
-struct ConstBufferDataTransform {
-	XMMATRIX mat;
-};
+
+
 
 class SpriteCommon
 {
@@ -31,10 +26,10 @@ private:
 	DirectXCommon* dxCommon = nullptr;
 
 
-	ID3D12Resource* constBuffMaterial = nullptr;
-	ID3D12Resource* constBuffTransform = nullptr;
+	
+	
 
-	ID3D12DescriptorHeap* srvHeap = nullptr;
+	
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState>pipelineState;
 
@@ -44,6 +39,6 @@ private:
 
 	const size_t textureHeight = 256;
 
-	const size_t kMaxSRVCount = 2056;
+	
 };
 

@@ -51,6 +51,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion 基盤システムの更新
 
 #pragma region 最初のシーンの更新
+        sprite->Update();
 
 #pragma endregion 最初のシーンの更新
 
