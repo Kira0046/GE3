@@ -138,7 +138,7 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 
 
 	//ルートパラメータの設定
-	D3D12_ROOT_PARAMETER rootParams[2] = {};
+	D3D12_ROOT_PARAMETER rootParams[3] = {};
 	//定数バッファ0番
 	rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//定数バッファビュー
 	rootParams[0].Descriptor.ShaderRegister = 0;//定数バッファ番号
@@ -149,6 +149,11 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 	rootParams[1].DescriptorTable.pDescriptorRanges = &descriptorRange;
 	rootParams[1].DescriptorTable.NumDescriptorRanges = 1;
 	rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	//定数バッファ1番
+	rootParams[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParams[2].Descriptor.ShaderRegister = 1;
+	rootParams[2].Descriptor.RegisterSpace = 0;
+	rootParams[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 
 	//テクスチャーサンプラーの設定
@@ -329,6 +334,43 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 
 	//ハンドルの指す位置にシェーダーリソースビュー作成
 	dxCommon->GetDevice()->CreateShaderResourceView(texBuff, &srvDesc, srvHandle);
+
+	//定数バッファの生成
+	ConstBufferDataTransform* constMapTransform = nullptr;
+	{
+		D3D12_HEAP_PROPERTIES cbHeapProp{};
+		cbHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
+
+		D3D12_RESOURCE_DESC cbResourceDesc{};
+		cbResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		cbResourceDesc.Width=(sizeof(ConstBufferDataTransform) + 0xff) & ~0xff;
+		cbResourceDesc.Height = 1;
+		cbResourceDesc.DepthOrArraySize = 1;
+		cbResourceDesc.MipLevels = 1;
+		cbResourceDesc.SampleDesc.Count = 1;
+		cbResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+		result = dxCommon->GetDevice()->CreateCommittedResource(
+			&cbHeapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&cbResourceDesc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&constBuffTransform));
+		assert(SUCCEEDED(result));
+
+		//定数バッファのマッピング
+		result = constBuffTransform->Map(0, nullptr, (void**)&constMapTransform);
+		assert(SUCCEEDED(result));
+		constMapTransform->mat = XMMatrixIdentity();
+
+		constMapTransform->mat.r[0].m128_f32[0] = 2.0f/1280;
+		constMapTransform->mat.r[1].m128_f32[1] = -2.0f/720;
+		constMapTransform->mat.r[3].m128_f32[0] = -1.0f;
+		constMapTransform->mat.r[3].m128_f32[1] = 1.0f;
+	}
+
+
 }
 
 
@@ -345,4 +387,5 @@ void SpriteCommon::PreDraw()
 	D3D12_GPU_DESCRIPTOR_HANDLE srvGpuHandle = srvHeap->GetGPUDescriptorHandleForHeapStart();
 
 	dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(1, srvGpuHandle);
+	dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(2, constBuffTransform->GetGPUVirtualAddress());
 }

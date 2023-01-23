@@ -14,6 +14,9 @@ struct ConstBufferDataMaterial
 	XMFLOAT4 color;
 };
 
+struct ConstBufferDataTransform {
+	XMMATRIX mat;
+};
 
 class SpriteCommon
 {
@@ -29,6 +32,7 @@ private:
 
 
 	ID3D12Resource* constBuffMaterial = nullptr;
+	ID3D12Resource* constBuffTransform = nullptr;
 
 	ID3D12DescriptorHeap* srvHeap = nullptr;
 
