@@ -26,10 +26,6 @@ private:
 	DirectXCommon* dxCommon = nullptr;
 
 
-	
-	
-
-	
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState>pipelineState;
 

@@ -36,6 +36,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     sprite = new Sprite();
     sprite->Initialize(spriteCommon);
 
+
+
 #pragma endregion 最初のシーンの初期化
     // ゲームループ
     while (true) {
@@ -45,6 +47,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             break;
         }
 
+        XMFLOAT2 position = sprite->GetPosition();
+        position.x += 0.5f;
+        position.y += 0.5f;
+        sprite->SetPosition(position);
+
+        XMFLOAT4 color = sprite->GetColor();
+        color.x -= 0.01f;
+        sprite->SetColor(color);
+
+        XMFLOAT2 size = sprite->GetSize();
+        size.x += 1.0f;
+        sprite->SetSize(size);
+        
+        bool isFlipY = sprite->GetIsFlipY();
+        if (input->PushKey(DIK_SPACE)) {
+            isFlipY = true;
+        }
+        else {
+            isFlipY = false;
+        }
+        sprite->SetIsFlipY(isFlipY);
 
         //入力の更新処理
         input->Update();
@@ -52,6 +75,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region 最初のシーンの更新
         sprite->Update();
+        
 
 #pragma endregion 最初のシーンの更新
 

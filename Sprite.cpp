@@ -9,6 +9,13 @@ void Sprite::Initialize(SpriteCommon* _spriteCommon)
 	assert(_spriteCommon);
 	spriteCommon = _spriteCommon;
 
+	
+	vertices[LB] = { {   0.0f, 100.0f, 0.0f },{0.0f,1.0f} };//LB
+	vertices[LT] = { {   0.0f,   0.0f, 0.0f },{0.0f,0.0f} };//LT
+	vertices[RB] = { { 100.0f, 100.0f, 0.0f },{1.0f,1.0f} };//RB
+	vertices[RT] = { { 100.0f,   0.0f, 0.0f },{1.0f,0.0f} };//RT
+	
+
 	// 頂点データ
 	//XMFLOAT3 vertices[] = {
 	//{ -0.3f, -0.5f, 0.0f }, // 左下
@@ -19,12 +26,7 @@ void Sprite::Initialize(SpriteCommon* _spriteCommon)
 	//{ +0.3f, +0.5f, 0.0f }, // 右上
 	//};
 
-	Vertex vertices[]={
-		{{   0.0f, 100.0f, 0.0f },{0.0f,1.0f}},//
-		{{   0.0f,   0.0f, 0.0f },{0.0f,0.0f}},//
-		{{ 100.0f, 100.0f, 0.0f },{1.0f,1.0f}},//
-		{{ 100.0f,   0.0f, 0.0f },{1.0f,0.0f}},//
-	};
+
 
 	// 頂点データ全体のサイズ = 頂点データ一つ分のサイズ * 頂点データの要素数
 	UINT sizeVB = static_cast<UINT>(sizeof(vertices[0]) * _countof(vertices));
@@ -51,7 +53,7 @@ void Sprite::Initialize(SpriteCommon* _spriteCommon)
 	assert(SUCCEEDED(result));
 
 	//転送
-	Vertex* vertMap = nullptr;
+	
 	result = vertBuff->Map(0, nullptr, (void**)&vertMap);
 	assert(SUCCEEDED(result));
 	// 全頂点に対して
@@ -91,7 +93,6 @@ void Sprite::Initialize(SpriteCommon* _spriteCommon)
 	assert(SUCCEEDED(result));
 
 	//定数バッファのマッピング
-	ConstBufferDataMaterial* constMapMaterial = nullptr;
 	result = constBuffMaterial->Map(0, nullptr, (void**)&constMapMaterial);//マッピング
 	assert(SUCCEEDED(result));
 
@@ -239,7 +240,7 @@ void Sprite::Initialize(SpriteCommon* _spriteCommon)
 	matWorld = XMMatrixIdentity();
 
 	rotationZ = 0.0f;
-	position = { 0.0f,0.0f,0.0f };
+	
 
 	//回転
 	XMMATRIX matRot;
@@ -249,7 +250,7 @@ void Sprite::Initialize(SpriteCommon* _spriteCommon)
 
 	//平行移動
 	XMMATRIX matTrans;
-	matTrans = XMMatrixTranslation(position.x, position.y, position.z);
+	matTrans = XMMatrixTranslation(position_.x, position_.y, 0.0f);
 	matWorld *= matTrans;
 
 	//射影変換
@@ -265,6 +266,32 @@ void Sprite::Initialize(SpriteCommon* _spriteCommon)
 
 void Sprite::Update()
 {
+	constMapMaterial->color = color_;
+
+	float left = (0.0f - anchorPoint_.x) * size_.x;
+	float right = (1.0f - anchorPoint_.x) * size_.x;
+	float top = (0.0f - anchorPoint_.y) * size_.y;
+	float bottom = (1.0f - anchorPoint_.y) * size_.y;
+
+	if (isFlipX_) {
+		left = -left;
+		right = -right;
+	}
+	if (isFlipY_) {
+		top = -top;
+		bottom = -bottom;
+	}
+
+
+	vertices[LB].pos = { left,   bottom,0.0f };
+	vertices[LT].pos = { left,   top,   0.0f };
+	vertices[RB].pos = { right,  bottom,0.0f };
+	vertices[RT].pos = { right,  top,   0.0f };
+
+	std::copy(std::begin(vertices), std::end(vertices), vertMap);
+
+
+
 	//ワールド
 	XMMATRIX matWorld;
 	matWorld = XMMatrixIdentity();
@@ -277,7 +304,7 @@ void Sprite::Update()
 
 	//平行移動
 	XMMATRIX matTrans;
-	matTrans = XMMatrixTranslation(position.x, position.y, position.z);
+	matTrans = XMMatrixTranslation(position_.x, position_.y, 0.0f);
 	matWorld *= matTrans;
 
 	//射影変換
