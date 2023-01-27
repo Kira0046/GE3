@@ -43,6 +43,7 @@ public:
 	void SetAnchor(const DirectX::XMFLOAT2 anchorPoint) { anchorPoint_ = anchorPoint; }
 	void SetIsFlipX(const bool isFlipX) { isFlipX_ = isFlipX; }
 	void SetIsFlipY(const bool isFlipY) { isFlipY_ = isFlipY; }
+	void SetIsInvisible(const bool isInvisible) { isInvisible_ = isInvisible; }
 
 	//ÉQÉbÉ^Å[
 	const DirectX::XMFLOAT2& GetPosition()const { return position_; }
@@ -52,6 +53,7 @@ public:
 	const DirectX::XMFLOAT2& GetAnchor() const { return anchorPoint_; }
 	const bool& GetIsFlipX() const { return isFlipX_; }
 	const bool& GetIsFlipY() const { return isFlipY_; }
+	const bool& GetInvisible() const { return isInvisible_; }
 private:
 
 	Vertex vertices[4];
@@ -77,6 +79,7 @@ private:
 	bool isFlipX_ = false;
 	bool isFlipY_ = false;
 
+	bool isInvisible_ = false;
 
 	SpriteCommon* spriteCommon = nullptr;
 	ID3D12Resource* constBuffTransform = nullptr;
