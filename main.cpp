@@ -69,6 +69,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         }
         sprite->SetIsFlipY(isFlipY);
 
+        bool isInvisible = sprite->GetInvisible();
+        if (input->PushKey(DIK_A)) {
+            isInvisible = true;
+        }
+        else {
+            isInvisible = false;
+        }
+        sprite->SetIsInvisible(isInvisible);
+
         //入力の更新処理
         input->Update();
 #pragma endregion 基盤システムの更新

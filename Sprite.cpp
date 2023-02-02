@@ -320,6 +320,11 @@ void Sprite::Update()
 
 void Sprite::Draw()
 {
+
+	if (isInvisible_) {
+		return;
+	}
+
 	spriteCommon->GetDirectXCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vbView);
 
 	spriteCommon->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(2, constBuffTransform->GetGPUVirtualAddress());
