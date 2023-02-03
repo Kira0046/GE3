@@ -64,7 +64,7 @@ private:
 
 	D3D12_RESOURCE_DESC resDesc;
 
-	const size_t kMaxSRVCount = 2056;
+	
 
 	float rotationZ;
 
@@ -84,7 +84,6 @@ private:
 	SpriteCommon* spriteCommon = nullptr;
 	ID3D12Resource* constBuffTransform = nullptr;
 	ID3D12Resource* constBuffMaterial = nullptr;
-	ID3D12DescriptorHeap* srvHeap = nullptr;
 	ConstBufferDataTransform* constMapTransform = nullptr;
 	ConstBufferDataMaterial* constMapMaterial = nullptr;
 	Vertex* vertMap = nullptr;

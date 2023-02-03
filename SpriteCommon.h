@@ -23,8 +23,12 @@ public:
 	DirectXCommon* GetDirectXCommon() { return dxCommon; }
 
 private:
+	const size_t kMaxSRVCount = 2056;
+
+
 	DirectXCommon* dxCommon = nullptr;
 
+	ID3D12DescriptorHeap* srvHeap = nullptr;
 
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState>pipelineState;
