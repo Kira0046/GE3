@@ -4,10 +4,15 @@
 #include<cassert>
 #include <string>
 
+#include <d3d12.h>
+#include <d3dx12.h>
+
 
 #pragma comment(lib,"d3dcompiler.lib")
 
 using namespace Microsoft::WRL;
+
+std::string SpriteCommon::kDefailtTextureDirectoryPath = "Resources/";
 
 void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 {
@@ -194,13 +199,50 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 	assert(SUCCEEDED(result));
 
 
+
+
+
+	
+
+
+
+	//画像イメージデータ
+	/*const size_t imageDataCount = textureWidth * textureHeight;
+
+	XMFLOAT4* imageData = new XMFLOAT4[imageDataCount];
+
+	for (size_t i = 0; i < imageDataCount; i++) {
+		imageData[i].x = 1.0f;
+		imageData[i].y = 0.0f;
+		imageData[i].z = 0.0f;
+		imageData[i].w = 1.0f;
+	}*/
+	
+
+}
+
+
+void SpriteCommon::PreDraw()
+{
+	
+}
+
+void SpriteCommon::LoadTexture(uint32_t index, const std::string& fileName)
+{
+	std::string fullPath = kDefailtTextureDirectoryPath + fileName;
+
+	int filePathBufferSize = MultiByteToWideChar(CP_ACP, 0, fullPath.c_str(), -1, nullptr, 0);
+
+	std::vector<wchar_t> wfilePath(filePathBufferSize);
+	MultiByteToWideChar(CP_ACP, 0, fullPath.c_str(), -1, wfilePath.data(), filePathBufferSize);
+
 	//テクスチャ
 
 	TexMetadata metadata{};
 	ScratchImage scratchImg{};
 
-	result = LoadFromWICFile(
-		L"ReSourCes/texture.png",
+	HRESULT result = LoadFromWICFile(
+		wfilePath.data(),
 		WIC_FLAGS_NONE,
 		&metadata, scratchImg
 	);
@@ -236,14 +278,14 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 	textureResourceDesc.SampleDesc.Count = 1;
 
 	//テクスチャバッファの生成
-	ID3D12Resource* texBuff = nullptr;
+
 	result = dxCommon->GetDevice()->CreateCommittedResource(
 		&textureHeapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&textureResourceDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(&texBuff)
+		IID_PPV_ARGS(&texBuff[index])
 	);
 
 	//テクスチャバッファにデータ転送
@@ -259,7 +301,7 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 
 	for (size_t i = 0; i < metadata.mipLevels; i++) {
 		const Image* img = scratchImg.GetImage(i, 0, 0);
-		result = texBuff->WriteToSubresource(
+		result = texBuff[index]->WriteToSubresource(
 			(UINT)i,
 			nullptr,
 			img->pixels,
@@ -291,30 +333,21 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 	srvDesc.Texture2D.MipLevels = textureResourceDesc.MipLevels;
 
 	//ハンドルの指す位置にシェーダーリソースビュー作成
-	dxCommon->GetDevice()->CreateShaderResourceView(texBuff, &srvDesc, srvHandle);
+	//dxCommon->GetDevice()->CreateShaderResourceView(texBuff[index].Get(), &srvDesc, srvHandle);
 
-
-	
-
-
-
-	//画像イメージデータ
-	/*const size_t imageDataCount = textureWidth * textureHeight;
-
-	XMFLOAT4* imageData = new XMFLOAT4[imageDataCount];
-
-	for (size_t i = 0; i < imageDataCount; i++) {
-		imageData[i].x = 1.0f;
-		imageData[i].y = 0.0f;
-		imageData[i].z = 0.0f;
-		imageData[i].w = 1.0f;
-	}*/
-	
-
+	UINT descriptorhandleIncrementSize = dxCommon->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	dxCommon->GetDevice()->CreateShaderResourceView(
+		texBuff[index].Get(),
+		&srvDesc,
+		CD3DX12_CPU_DESCRIPTOR_HANDLE(
+			srvHeap->GetCPUDescriptorHandleForHeapStart(),
+			index,
+			descriptorhandleIncrementSize
+		)
+	);
 }
 
-
-void SpriteCommon::PreDraw()
+void SpriteCommon::SetTextureCommands(uint32_t index)
 {
 	dxCommon->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
@@ -322,8 +355,15 @@ void SpriteCommon::PreDraw()
 	dxCommon->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
 
 
-	dxCommon->GetCommandList()->SetDescriptorHeaps(1, &srvHeap);
+	ID3D12DescriptorHeap* ppHeaps[] = { srvHeap.Get() };
+	dxCommon->GetCommandList()->SetDescriptorHeaps(_countof(ppHeaps),ppHeaps);
 
-	D3D12_GPU_DESCRIPTOR_HANDLE srvGpuHandle = srvHeap->GetGPUDescriptorHandleForHeapStart();
-	dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(1, srvGpuHandle);
+	UINT descriptorhandleIncrementSize = dxCommon->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(
+		1, CD3DX12_GPU_DESCRIPTOR_HANDLE(
+			srvHeap->GetGPUDescriptorHandleForHeapStart(),
+			index,
+			descriptorhandleIncrementSize
+		));
+	
 }

@@ -37,22 +37,40 @@ public:
 
 	//セッター
 	void SetPosition(const DirectX::XMFLOAT2& position) { position_ = position; }
+
+	void SetTextureIndex(uint32_t index) { this->textureIndex = index; }
+
 	void SetRotation(float rotation) { rotationZ = rotation; }
+	
 	void SetColor(const DirectX::XMFLOAT4 color) { color_ = color; }
+	
 	void SetSize(const DirectX::XMFLOAT2 size) { size_ = size; }
+	
 	void SetAnchor(const DirectX::XMFLOAT2 anchorPoint) { anchorPoint_ = anchorPoint; }
+	
 	void SetIsFlipX(const bool isFlipX) { isFlipX_ = isFlipX; }
+	
 	void SetIsFlipY(const bool isFlipY) { isFlipY_ = isFlipY; }
+	
 	void SetIsInvisible(const bool isInvisible) { isInvisible_ = isInvisible; }
 
 	//ゲッター
 	const DirectX::XMFLOAT2& GetPosition()const { return position_; }
+
+	const uint32_t GetTextureIndex() const { return textureIndex; }
+	
 	float GetRotation() const { return rotationZ; }
+	
 	const DirectX::XMFLOAT4& GetColor() const { return color_; }
+	
 	const DirectX::XMFLOAT2& GetSize() const { return size_; }
+	
 	const DirectX::XMFLOAT2& GetAnchor() const { return anchorPoint_; }
+	
 	const bool& GetIsFlipX() const { return isFlipX_; }
+	
 	const bool& GetIsFlipY() const { return isFlipY_; }
+	
 	const bool& GetInvisible() const { return isInvisible_; }
 private:
 
@@ -64,7 +82,7 @@ private:
 
 	D3D12_RESOURCE_DESC resDesc;
 
-	
+	uint32_t textureIndex = 0;
 
 	float rotationZ;
 
