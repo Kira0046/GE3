@@ -25,6 +25,16 @@ void SpriteCommon::Initialize(DirectXCommon* _dxCommon)
 	ID3D10Blob* psBlob = nullptr;
 	ID3D10Blob* errorBlob=nullptr;
 
+	//デスクリプタヒープの設定
+	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	srvHeapDesc.NumDescriptors = kMaxSRVCount;
+
+	//設定を元にSRV用デスクリプタヒープを生成
+	result = dxCommon->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&srvHeap));
+	assert(SUCCEEDED(result));
+
 	//VS読み込み
 	result = D3DCompileFromFile(
 		L"Resources/Shaders/SpriteVS.hlsl",
@@ -312,15 +322,7 @@ void SpriteCommon::LoadTexture(uint32_t index, const std::string& fileName)
 	}
 
 
-	//デスクリプタヒープの設定
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	srvHeapDesc.NumDescriptors = kMaxSRVCount;
-
-	//設定を元にSRV用デスクリプタヒープを生成
-	result = dxCommon->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&srvHeap));
-	assert(SUCCEEDED(result));
+	
 
 	//SRVヒープの先頭ハンドルを取得
 	D3D12_CPU_DESCRIPTOR_HANDLE srvHandle = srvHeap->GetCPUDescriptorHandleForHeapStart();
