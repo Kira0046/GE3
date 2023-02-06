@@ -3,11 +3,13 @@
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
-void Sprite::Initialize(SpriteCommon* _spriteCommon)
+void Sprite::Initialize(SpriteCommon* _spriteCommon,uint32_t textureIndex)
 {
 	HRESULT result{};
 	assert(_spriteCommon);
 	spriteCommon = _spriteCommon;
+
+
 
 	
 	vertices[LB] = { {   0.0f, 100.0f, 0.0f },{0.0f,1.0f} };//LB
@@ -25,6 +27,12 @@ void Sprite::Initialize(SpriteCommon* _spriteCommon)
 	////{ -0.5f, +0.5f, 0.0f }, // ¶ã
 	//{ +0.3f, +0.5f, 0.0f }, // ‰Eã
 	//};
+
+	if (textureIndex != UINT32_MAX) {
+		textureIndex_ = textureIndex;
+		AdjustTextureSize();
+		size_ = textureSize_;
+	}
 
 
 
@@ -175,7 +183,7 @@ void Sprite::Update()
 	float top = (0.0f - anchorPoint_.y) * size_.y;
 	float bottom = (1.0f - anchorPoint_.y) * size_.y;
 
-	if (isFlipX_) {
+	if (isFlipX_ == true) {
 		left = -left;
 		right = -right;
 	}
@@ -189,6 +197,23 @@ void Sprite::Update()
 	vertices[LT].pos = { left,   top,   0.0f };
 	vertices[RB].pos = { right,  bottom,0.0f };
 	vertices[RT].pos = { right,  top,   0.0f };
+
+	ID3D12Resource* textureBuffer = spriteCommon->GetTextureBuffer(textureIndex_);
+
+	if (textureBuffer) {
+		D3D12_RESOURCE_DESC resDesc = textureBuffer->GetDesc();
+
+		float tex_left = textureLeftTop_.x / resDesc.Width;
+		float tex_right = (textureLeftTop_.x + textureSize_.x) / resDesc.Width;
+		float tex_top = textureLeftTop_.y / resDesc.Height;
+		float tex_bottom = (textureLeftTop_.y + textureSize_.y) / resDesc.Height;
+
+		vertices[LB].uv = { tex_left,tex_bottom };
+		vertices[LT].uv = { tex_left,tex_top };
+		vertices[RB].uv = { tex_right,tex_bottom };
+		vertices[RT].uv = { tex_right,tex_top };
+	}
+
 
 	std::copy(std::begin(vertices), std::end(vertices), vertMap);
 
@@ -227,7 +252,7 @@ void Sprite::Draw()
 		return;
 	}
 
-	spriteCommon->SetTextureCommands(textureIndex);
+	spriteCommon->SetTextureCommands(textureIndex_);
 
 	spriteCommon->GetDirectXCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vbView);
 
@@ -237,4 +262,15 @@ void Sprite::Draw()
 
 
 	spriteCommon->GetDirectXCommon()->GetCommandList()->DrawInstanced(4, 1, 0, 0);
+}
+
+void Sprite::AdjustTextureSize()
+{
+	ID3D12Resource* textureBuffer = spriteCommon->GetTextureBuffer(textureIndex_);
+	assert(textureBuffer);
+
+	D3D12_RESOURCE_DESC resDesc = textureBuffer->GetDesc();
+
+	textureSize_.x = static_cast<float>(resDesc.Width);
+	textureSize_.y = static_cast<float>(resDesc.Height);
 }

@@ -36,8 +36,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //Sprite
     Sprite* sprite = nullptr;
     sprite = new Sprite();
-    sprite->Initialize(spriteCommon);
-    sprite->SetTextureIndex(1);
+    sprite->Initialize(spriteCommon,1);
+   // sprite->SetTextureIndex(1);
 
 
 #pragma endregion 最初のシーンの初期化
@@ -54,13 +54,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         position.y += 0.5f;
         sprite->SetPosition(position);
 
-        XMFLOAT4 color = sprite->GetColor();
-        color.x -= 0.01f;
-        sprite->SetColor(color);
+        //XMFLOAT4 color = sprite->GetColor();
+        //color.x -= 0.01f;
+        //sprite->SetColor(color);
 
-        XMFLOAT2 size = sprite->GetSize();
-        size.x += 1.0f;
-        sprite->SetSize(size);
+        //XMFLOAT2 size = sprite->GetSize();
+        //size.x += 1.0f;
+        //sprite->SetSize(size);
         
         bool isFlipY = sprite->GetIsFlipY();
         if (input->PushKey(DIK_SPACE)) {
