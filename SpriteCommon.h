@@ -45,7 +45,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature>rootSignature;
 
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>srvHeap;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap;
 
 	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxSRVCount> texBuff;
 

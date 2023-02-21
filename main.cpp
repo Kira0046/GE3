@@ -3,6 +3,8 @@
 #include "DirectXCommon.h"
 #include "Sprite.h"
 #include "SpriteCommon.h"
+#include "Object3d.h"
+#include "Model.h"
 
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -29,6 +31,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     spriteCommon->Initialize(dxCommon);
     spriteCommon->LoadTexture(0, "texture.png");
     spriteCommon->LoadTexture(1, "reimu.png");
+
+    //Object3d
+    Object3d::StaticInitialize(dxCommon->GetDevice(), WinApp::window_width, WinApp::window_height);
+    Model* model = Model::LoadFromOBJ(dxCommon->GetDevice());
+    Object3d* object3d = Object3d::Create();
+    object3d->SetModel(model);
+
 
 #pragma endregion 基盤システムの初期化
 
@@ -86,7 +95,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region 最初のシーンの更新
         sprite->Update();
-        
+        object3d->Update();
 
 #pragma endregion 最初のシーンの更新
 
@@ -98,6 +107,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion 最初のシーンの描画
 
+        Object3d::PreDraw(dxCommon->GetCommandList());
+
+        object3d->Draw();
+
+        Object3d::PostDraw();
+
         dxCommon->PostDraw();
        
 
@@ -107,6 +122,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion 最初のシーンの終了
     delete sprite;
     sprite = nullptr;
+
+    delete object3d;
+    object3d = nullptr;
+
+    delete model;
+    model = nullptr;
 
 #pragma region 基盤システムの終了
     delete input;
