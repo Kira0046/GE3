@@ -39,12 +39,30 @@ public:
 			alpha = 1.0f;
 		}
 	};
+
+	//定数バッファ用データ構造B1
+	struct ConstBufferDataB1
+	{
+		XMFLOAT3 ambient;
+		float pad1;
+		XMFLOAT3 diffuse;
+		float pad2;
+		XMFLOAT3 specular;
+		float alpha;
+	};
 public:
 	/// <summary>
 	/// OBJ読み込み
 	/// </summary>
 	/// <returns></returns>
 	static Model* LoadFromOBJ();
+
+	/// <summary>
+	/// 描画
+	/// </summary>
+	/// <param name="cmdList"></param>
+	/// <param name="rootParamIndexMaterial"></param>
+	void Draw(ID3D12GraphicsCommandList* cmdList, UINT rootParamIndexMaterial);
 
 	/// <summary>
 	/// マテリアル読み込み
@@ -55,6 +73,10 @@ public:
 	/// テクスチャ読み込み
 	/// </summary>
 	void LoadTexture(const std::string& directoryPath, const std::string& filename);
+
+
+	//setter
+	static void SetDevice(ID3D12Device* device) { Model::device = device; }
 private:
 	//デバイス
 	static ID3D12Device* device;
@@ -70,16 +92,43 @@ private:
 	// テクスチャバッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> texbuff;
 
+	// 頂点バッファ
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff;
+	// インデックスバッファ
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff;
+
+	//定数バッファ
+	Microsoft::WRL::ComPtr<ID3D12Resource>constBuffB1;
+
 	// シェーダリソースビューのハンドル(CPU)
 	CD3DX12_CPU_DESCRIPTOR_HANDLE cpuDescHandleSRV;
 	// シェーダリソースビューのハンドル(CPU)
 	CD3DX12_GPU_DESCRIPTOR_HANDLE gpuDescHandleSRV;
 
+	// 頂点バッファビュー
+	D3D12_VERTEX_BUFFER_VIEW vbView;
+	// インデックスバッファビュー
+	D3D12_INDEX_BUFFER_VIEW ibView;
+
+
 	// デスクリプタサイズ
 	UINT descriptorHandleIncrementSize;
 
 
-
 	Material material;
+
+	/// <summary>
+	/// 読み込み
+	/// </summary>
 	void LoadFromOBJInternal();
+
+	/// <summary>
+	/// デスクリプタヒープの初期化
+	/// </summary>
+	void InitializeDescriptorHeap();
+
+	/// <summary>
+	/// バッファ生成
+	/// </summary>
+	void CreateBuffers();
 };
