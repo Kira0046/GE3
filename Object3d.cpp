@@ -49,11 +49,6 @@ void Object3d::StaticInitialize(ID3D12Device * device, int window_width, int win
 	// パイプライン初期化
 	InitializeGraphicsPipeline();
 
-	// テクスチャ読み込み
-	//LoadTexture();
-
-
-
 }
 
 void Object3d::PreDraw(ID3D12GraphicsCommandList * cmdList)
