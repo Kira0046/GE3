@@ -3,6 +3,7 @@
 #include "DirectXCommon.h"
 #include "Sprite.h"
 #include "SpriteCommon.h"
+#include "Object3d.h"
 
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -29,6 +30,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     spriteCommon->Initialize(dxCommon);
     spriteCommon->LoadTexture(0, "texture.png");
     spriteCommon->LoadTexture(1, "reimu.png");
+
+    //3Dオブジェクト静的初期化
+    Object3d::StaticInitialize(dxCommon->GetDevice(), WinApp::window_width, WinApp::window_height);
+    //3Dオブジェクト生成
+    Object3d* object3d = Object3d::Create();
 
 #pragma endregion 基盤システムの初期化
 
@@ -82,6 +88,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
         //入力の更新処理
         input->Update();
+        //3Dオブジェクト更新処理
+        object3d->Update();
+
 #pragma endregion 基盤システムの更新
 
 #pragma region 最初のシーンの更新
@@ -95,6 +104,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region 最初のシーンの描画
         spriteCommon->PreDraw();
         sprite->Draw();
+
+        Object3d::PreDraw(dxCommon->GetCommandList());
+        object3d->Draw();
+        Object3d::PostDraw();
 
 #pragma endregion 最初のシーンの描画
 
@@ -111,6 +124,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region 基盤システムの終了
     delete input;
     input = nullptr;
+
+    delete object3d;
+    object3d = nullptr;
 
     // ウィンドウクラスを登録解除
     //UnregisterClass(w.lpszClassName, w.hInstance);
