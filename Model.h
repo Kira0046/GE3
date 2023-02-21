@@ -74,6 +74,21 @@ public:
 	/// </summary>
 	void LoadTexture(const std::string& directoryPath, const std::string& filename);
 
+	/// <summary>
+	/// 読み込み
+	/// </summary>
+	void LoadFromOBJInternal();
+
+	/// <summary>
+	/// デスクリプタヒープの初期化
+	/// </summary>
+	void InitializeDescriptorHeap();
+
+	/// <summary>
+	/// バッファ生成
+	/// </summary>
+	void CreateBuffers();
+
 
 	//setter
 	static void SetDevice(ID3D12Device* device) { Model::device = device; }
@@ -106,9 +121,9 @@ private:
 	CD3DX12_GPU_DESCRIPTOR_HANDLE gpuDescHandleSRV;
 
 	// 頂点バッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vbView;
+	D3D12_VERTEX_BUFFER_VIEW vbView = {};
 	// インデックスバッファビュー
-	D3D12_INDEX_BUFFER_VIEW ibView;
+	D3D12_INDEX_BUFFER_VIEW ibView = {};
 
 
 	// デスクリプタサイズ
@@ -117,18 +132,5 @@ private:
 
 	Material material;
 
-	/// <summary>
-	/// 読み込み
-	/// </summary>
-	void LoadFromOBJInternal();
 
-	/// <summary>
-	/// デスクリプタヒープの初期化
-	/// </summary>
-	void InitializeDescriptorHeap();
-
-	/// <summary>
-	/// バッファ生成
-	/// </summary>
-	void CreateBuffers();
 };

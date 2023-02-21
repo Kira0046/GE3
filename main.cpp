@@ -4,6 +4,7 @@
 #include "Sprite.h"
 #include "SpriteCommon.h"
 #include "Object3d.h"
+#include "Model.h"
 
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -33,8 +34,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //3Dオブジェクト静的初期化
     Object3d::StaticInitialize(dxCommon->GetDevice(), WinApp::window_width, WinApp::window_height);
+    //モデルデータ読み込み
+    Model* model = Model::LoadFromOBJ();
     //3Dオブジェクト生成
     Object3d* object3d = Object3d::Create();
+    //紐づけ
+    object3d->SetModel(model);
 
 #pragma endregion 基盤システムの初期化
 
@@ -124,6 +129,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region 基盤システムの終了
     delete input;
     input = nullptr;
+
+    delete model;
 
     delete object3d;
     object3d = nullptr;

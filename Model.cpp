@@ -310,11 +310,15 @@ void Model::CreateBuffers()
 	// ヒーププロパティ
 	CD3DX12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 	// リソース設定
-	CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeVB);
+	CD3DX12_RESOURCE_DESC resourceDescVB = CD3DX12_RESOURCE_DESC::Buffer(sizeVB);
 
 	// 頂点バッファ生成
 	result = device->CreateCommittedResource(
-		&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc/*&CD3DX12_RESOURCE_DESC::Buffer(sizeVB)*/, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+		&heapProps, 
+		D3D12_HEAP_FLAG_NONE, 
+		&resourceDescVB/*&CD3DX12_RESOURCE_DESC::Buffer(sizeVB)*/,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
 		IID_PPV_ARGS(&vertBuff));
 	assert(SUCCEEDED(result));
 
@@ -336,13 +340,17 @@ void Model::CreateBuffers()
 
 
 	// リソース設定
-	resourceDesc.Width = sizeIB;
+	//resourceDesc.Width = sizeIB;
 
 
-	resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeIB);
+	CD3DX12_RESOURCE_DESC resourceDescIB = CD3DX12_RESOURCE_DESC::Buffer(sizeIB);
 	// インデックスバッファ生成
 	result = device->CreateCommittedResource(
-		&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc/*&CD3DX12_RESOURCE_DESC::Buffer(sizeIB)*/, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+		&heapProps, 
+		D3D12_HEAP_FLAG_NONE, 
+		&resourceDescIB/*&CD3DX12_RESOURCE_DESC::Buffer(sizeIB)*/, 
+		D3D12_RESOURCE_STATE_GENERIC_READ, 
+		nullptr,
 		IID_PPV_ARGS(&indexBuff));
 
 	// インデックスバッファへのデータ転送
@@ -370,7 +378,7 @@ void Model::CreateBuffers()
 
 	//定数バッファの生成
 	//リソース設定
-	resourceDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff);
+	CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff);
 	result = device->CreateCommittedResource(
 		&heapProps,
 		D3D12_HEAP_FLAG_NONE,

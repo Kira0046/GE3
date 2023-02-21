@@ -375,9 +375,11 @@ void Object3d::Draw()
 	// nullptrチェック
 	assert(device);
 	assert(Object3d::cmdList);
-		
 
 
+	if (model = nullptr) {
+		return;
+	}
 
 
 	// 定数バッファビューをセット
@@ -385,5 +387,5 @@ void Object3d::Draw()
 	cmdList->SetGraphicsRootConstantBufferView(0, constBuffB0->GetGPUVirtualAddress());
 	
 
-	
+	model->Draw(cmdList, 1);
 }

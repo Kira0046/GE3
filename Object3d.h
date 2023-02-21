@@ -6,6 +6,7 @@
 #include <DirectXMath.h>
 #include <d3dx12.h>
 #include <string>
+#include "Model.h"
 
 /// <summary>
 /// 3Dオブジェクト
@@ -174,8 +175,16 @@ public: // メンバ関数
 	/// </summary>
 	/// <param name="position">座標</param>
 	void SetPosition(const XMFLOAT3& position) { this->position = position; }
+	
+	/// <summary>
+	/// setter
+	/// </summary>
+	/// <param name="model"></param>
+	void SetModel(Model* model) { this->model = model; }
 
 private: // メンバ変数
+	//モデル
+	Model* model = nullptr;
 	//ComPtr<ID3D12Resource> constBuff; // 定数バッファ
 	ComPtr<ID3D12Resource>constBuffB0;//定数バッファ
 	
