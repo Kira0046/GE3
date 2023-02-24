@@ -6,6 +6,11 @@
 #include "Object3d.h"
 #include "Model.h"
 
+#include "CollisionPrimitive.h"
+#include "Collision.h"
+#include <sstream>
+#include <iomanip>
+
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -35,9 +40,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //3Dオブジェクト静的初期化
     Object3d::StaticInitialize(dxCommon->GetDevice(), WinApp::window_width, WinApp::window_height);
    
-    Model* model = Model::StaticCreateFromOBJ("triangle_mat");
+    Model* model = Model::StaticCreateFromOBJ("Ccopy");
+    Model* modelH = Model::StaticCreateFromOBJ("C");
+    Model* modelground = Model::StaticCreateFromOBJ("g");
     //3Dオブジェクト生成
-    Object3d* object3d = Object3d::Create(model);
+    Object3d* object3d1 = Object3d::Create(model);
+    Object3d* object3d2 = Object3d::Create(modelground);
+    
+    XMFLOAT3 position = { 0,-30,0 };
+    object3d2->SetPosition(position);
+
+    Sphere sphere;
+    Plane plane;
+
+    sphere.center = object3d1->GetPosition();
+    sphere.radius = 1.0f;
+
+    plane.normal = XMVectorSet(0, 1, 0, 0);
+    plane.distance = -30.0f;
+    
 
 #pragma endregion 基盤システムの初期化
 
@@ -58,41 +79,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             break;
         }
 
-        XMFLOAT2 position = sprite->GetPosition();
-        position.x += 0.5f;
-        position.y += 0.5f;
-        sprite->SetPosition(position);
+        DirectX::XMFLOAT3 move = { 0.0f,0.0f,0.0f };
 
-        //XMFLOAT4 color = sprite->GetColor();
-        //color.x -= 0.01f;
-        //sprite->SetColor(color);
-
-        //XMFLOAT2 size = sprite->GetSize();
-        //size.x += 1.0f;
-        //sprite->SetSize(size);
         
-        bool isFlipY = sprite->GetIsFlipY();
-        if (input->PushKey(DIK_SPACE)) {
-            isFlipY = true;
-        }
-        else {
-            isFlipY = false;
-        }
-        sprite->SetIsFlipY(isFlipY);
 
-        bool isInvisible = sprite->GetInvisible();
-        if (input->PushKey(DIK_A)) {
-            isInvisible = true;
-        }
-        else {
-            isInvisible = false;
-        }
-        sprite->SetIsInvisible(isInvisible);
+       
+
+       
 
         //入力の更新処理
         input->Update();
         //3Dオブジェクト更新処理
-        object3d->Update();
+        object3d1->Update();
+        object3d2->Update();
 
 #pragma endregion 基盤システムの更新
 
@@ -106,10 +105,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         dxCommon->PreDraw();
 #pragma region 最初のシーンの描画
         spriteCommon->PreDraw();
-        sprite->Draw();
+        //sprite->Draw();
 
         Object3d::PreDraw(dxCommon->GetCommandList());
-        object3d->Draw();
+        
+        object3d1->Draw();
+        object3d2->Draw();
+
         Object3d::PostDraw();
 
 #pragma endregion 最初のシーンの描画
@@ -128,8 +130,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     delete input;
     input = nullptr;
 
-    delete object3d;
-    object3d = nullptr;
+    delete object3d1;
+    delete object3d2;
+    object3d1 = nullptr;
 
     // ウィンドウクラスを登録解除
     //UnregisterClass(w.lpszClassName, w.hInstance);

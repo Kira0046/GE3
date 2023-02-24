@@ -5,6 +5,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include "Input.h"
 using namespace std;
 
 
@@ -401,6 +403,7 @@ void Object3d::Update()
 	constMap1->specular = model->GetMaterial().specular;
 	constMap1->alpha = model->GetMaterial().alpha;
 	constBuffB1->Unmap(0, nullptr);
+
 }
 
 void Object3d::Draw()

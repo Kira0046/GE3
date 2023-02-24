@@ -200,6 +200,19 @@ public: // メンバ関数
 
 	void SetModel(Model* _model) { model = _model; }
 
+	XMFLOAT3 GetMove() {
+		return position;
+	}
+
+	DirectX::XMVECTOR GetPosition() {
+		DirectX::XMVECTOR Pos;
+		Pos.m128_f32[0] = position.x;
+		Pos.m128_f32[1] = position.y;
+		Pos.m128_f32[3] = position.z;
+
+		return Pos;
+	}
+
 private: // メンバ変数
 	//ComPtr<ID3D12Resource> constBuff; // 定数バッファ
 	ComPtr<ID3D12Resource>constBuffB0;//定数バッファ
@@ -214,7 +227,7 @@ private: // メンバ変数
 	// X,Y,Z軸回りのローカル回転角
 	XMFLOAT3 rotation = { 0,0,0 };
 	// ローカル座標
-	XMFLOAT3 position = { 0,0,0 };
+	XMFLOAT3 position = { 0.0f,0.0f,0.0f };
 	// ローカルワールド変換行列
 	XMMATRIX matWorld;
 	// 親オブジェクト
