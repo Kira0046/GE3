@@ -7,6 +7,8 @@
 #include <d3dx12.h>
 #include <string>
 
+#include "Model.h"
+
 /// <summary>
 /// 3Dオブジェクト
 /// </summary>
@@ -22,13 +24,7 @@ private: // エイリアス
 	using XMMATRIX = DirectX::XMMATRIX;
 
 public: // サブクラス
-	// 頂点データ構造体
-	struct VertexPosNormalUv
-	{
-		XMFLOAT3 pos; // xyz座標
-		XMFLOAT3 normal; // 法線ベクトル
-		XMFLOAT2 uv;  // uv座標
-	};
+	
 
 	// 定数バッファ用データ構造体
 	struct ConstBufferDataB0
@@ -47,23 +43,7 @@ public: // サブクラス
 		float alpha;
 	};
 
-	//マテリアル
-	struct Material
-	{
-		std::string name;
-		XMFLOAT3 ambient;
-		XMFLOAT3 diffuse;
-		XMFLOAT3 specular;
-		float alpha;
-		std::string textureFilename;
-
-		Material() {
-			ambient = { 0.3f,0.3f,0.3f };
-			diffuse = { 0.0f,0.0f,0.0f };
-			specular = { 0.0f,0.0f,0.0f };
-			alpha = 1.0f;
-		}
-	};
+	
 
 private: // 定数
 	static const int division = 50;					// 分割数
@@ -96,7 +76,7 @@ public: // 静的メンバ関数
 	/// 3Dオブジェクト生成
 	/// </summary>
 	/// <returns></returns>
-	static Object3d* Create();
+	static Object3d* Create(Model* model=nullptr);
 
 	/// <summary>
 	/// 視点座標の取得
@@ -131,26 +111,13 @@ public: // 静的メンバ関数
 private: // 静的メンバ変数
 	// デバイス
 	static ID3D12Device* device;
-	// デスクリプタサイズ
-	static UINT descriptorHandleIncrementSize;
+	
 	// コマンドリスト
 	static ID3D12GraphicsCommandList* cmdList;
 	// ルートシグネチャ
 	static ComPtr<ID3D12RootSignature> rootsignature;
 	// パイプラインステートオブジェクト
-	static ComPtr<ID3D12PipelineState> pipelinestate;
-	// デスクリプタヒープ
-	static ComPtr<ID3D12DescriptorHeap> descHeap;
-	// 頂点バッファ
-	static ComPtr<ID3D12Resource> vertBuff;
-	// インデックスバッファ
-	static ComPtr<ID3D12Resource> indexBuff;
-	// テクスチャバッファ
-	static ComPtr<ID3D12Resource> texbuff;
-	// シェーダリソースビューのハンドル(CPU)
-	static CD3DX12_CPU_DESCRIPTOR_HANDLE cpuDescHandleSRV;
-	// シェーダリソースビューのハンドル(CPU)
-	static CD3DX12_GPU_DESCRIPTOR_HANDLE gpuDescHandleSRV;
+	static ComPtr<ID3D12PipelineState> pipelinestate;	
 	// ビュー行列
 	static XMMATRIX matView;
 	// 射影行列
@@ -161,18 +128,9 @@ private: // 静的メンバ変数
 	static XMFLOAT3 target;
 	// 上方向ベクトル
 	static XMFLOAT3 up;
-	// 頂点バッファビュー
-	static D3D12_VERTEX_BUFFER_VIEW vbView;
-	// インデックスバッファビュー
-	static D3D12_INDEX_BUFFER_VIEW ibView;
-	// 頂点データ配列
-	//static VertexPosNormalUv vertices[vertexCount];
-	static std::vector<VertexPosNormalUv> vertices;
-	// 頂点インデックス配列
-	//static unsigned short indices[planeCount * 3];
-	static std::vector<unsigned short> indices;
-	//マテリアル
-	static Material material;
+	
+	
+	
 
 private:// 静的メンバ関数
 	/// <summary>
@@ -240,10 +198,15 @@ public: // メンバ関数
 	/// <param name="position">座標</param>
 	void SetPosition(const XMFLOAT3& position) { this->position = position; }
 
+	void SetModel(Model* _model) { model = _model; }
+
 private: // メンバ変数
 	//ComPtr<ID3D12Resource> constBuff; // 定数バッファ
 	ComPtr<ID3D12Resource>constBuffB0;//定数バッファ
 	ComPtr<ID3D12Resource>constBuffB1;//定数バッファ
+
+	Model* model = nullptr;
+
 	// 色
 	XMFLOAT4 color = { 1,1,1,1 };
 	// ローカルスケール
