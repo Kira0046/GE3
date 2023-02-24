@@ -50,6 +50,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     XMFLOAT3 position = { 0,-30,0 };
     object3d2->SetPosition(position);
 
+    XMFLOAT3 ballposition{ 0.0f,0.0f,20.0f };
+    object3d1->SetPosition(ballposition);
+
     Sphere sphere;
     Plane plane;
 
@@ -59,6 +62,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     plane.normal = XMVectorSet(0, 1, 0, 0);
     plane.distance = -30.0f;
     
+    DirectX::XMFLOAT3 move = { 0.0f,0.0f,20.0f };
 
 #pragma endregion 基盤システムの初期化
 
@@ -79,10 +83,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             break;
         }
 
-        DirectX::XMFLOAT3 move = { 0.0f,0.0f,0.0f };
-
         
 
+        if (input->PushKey(DIK_W)) {
+            move.y += 0.1;
+            object3d1->SetPosition(move);
+        }
+
+        if (input->PushKey(DIK_S)) {
+            move.y -= 0.1;
+            object3d1->SetPosition(move);
+        }
        
 
        
