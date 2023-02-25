@@ -59,7 +59,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Plane plane;
 
     sphere.center = object3d1->GetPosition();
-    sphere.radius = 1.0f;
+    sphere.radius =19.0f;
 
     plane.normal = XMVectorSet(0, 1, 0, 0);
     plane.distance = -30.0f;
@@ -92,12 +92,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         if (input->PushKey(DIK_W)) {
             move.y += 0.1;
             object3d1->SetPosition(move);
+            XMVECTOR moveY = { 0,0.1f,0,0 };
+            sphere.center += moveY;
         }
 
         if (input->PushKey(DIK_S)) {
             move.y -= 0.1;
             object3d1->SetPosition(move);
+            XMVECTOR moveY = { 0,0.1f,0,0 };
+            sphere.center -= moveY;
         }
+
+        bool hit = Collision::CheckSphere2Plane(sphere, plane);
+        if (hit) {
+            object3d1->SetModel(modelH);
+        }
+        else {
+            object3d1->SetModel(model);
+        }
+        
        
 
        
